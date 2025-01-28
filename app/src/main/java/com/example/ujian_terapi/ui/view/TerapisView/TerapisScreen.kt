@@ -1,4 +1,4 @@
-package com.example.ujian_terapi.ui.view
+package com.example.ujian_terapi.ui.view.TerapisView
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -18,56 +18,52 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ujian_terapi.R
-import com.example.ujian_terapi.data.model.Pasien
+import com.example.ujian_terapi.data.model.Terapis
 import com.example.ujian_terapi.navigation.DestinasiNavigasi
 import com.example.ujian_terapi.ui.ConstumeAppBarr.CostumeTopAppBar
 import com.example.ujian_terapi.ui.ConstumeAppBarr.MenuButton
-import com.example.ujian_terapi.ui.viewModel.Pasien.HomeUiState
-import com.example.ujian_terapi.ui.viewModel.Pasien.HomeViewModelPasien
+import com.example.ujian_terapi.ui.viewModel.Terapis.HomeUiState
+import com.example.ujian_terapi.ui.viewModel.Terapis.HomeViewModelTerapis
 import com.example.ujian_terapi.ui.viewModel.PenyediaViewModel
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
 
-object DestinasiHome : DestinasiNavigasi {
-    override val route = "home pasien"
-    override val titleRes = "Home Pasien"
+object DestinasiHomeTerapis : DestinasiNavigasi {
+    override val route = "home terapis"
+    override val titleRes = "Home Terapis"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreenPasien(
-    navigateToItemEntry: () -> Unit,
-    navigateToPasien: () -> Unit, // Navigasi ke halaman Pasien
-    navigateToTerapis: () -> Unit, // Navigasi ke halaman Terapis
-    navigateToJenisTerapi: () -> Unit, // Navigasi ke halaman Jenis Terapi
-    navigateToSesiTerapi: () -> Unit, // Navigasi ke halaman Sesi Terapi
+fun HomeScreenTerapis(
+    navigateToTerapisEntry: () -> Unit,
+    navigateToPasien: () -> Unit,
+    navigateToTerapis: () -> Unit,
+    navigateToJenisTerapi: () -> Unit,
+    navigateToSesiTerapi: () -> Unit,
     modifier: Modifier = Modifier,
-    navigateToUpdatePasien: (String) -> Unit,
-
+    navigateToUpdateTerapis: (String) -> Unit,
     onDetailClick: (Int) -> Unit = {},
-    viewModel: HomeViewModelPasien = viewModel(factory = PenyediaViewModel.Factory)
+    viewModel: HomeViewModelTerapis = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CostumeTopAppBar(
-                title = DestinasiHome.titleRes,
+                title = DestinasiHomeTerapis.titleRes,
                 canNavigateBack = false,
                 scrollBehavior = scrollBehavior,
                 onRefresh = {
-                    viewModel.getPasien()
+                    viewModel.getTerapis()
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = navigateToItemEntry,
+                onClick = navigateToTerapisEntry,
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(18.dp)
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Pasien")
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Terapis")
             }
         },
         bottomBar = {
@@ -81,13 +77,13 @@ fun HomeScreenPasien(
         }
     ) { innerPadding ->
         HomeStatus(
-            homeUiState = viewModel.pasienUIState,
-            retryAction = { viewModel.getPasien() },
+            homeUiState = viewModel.terapisUIState,
+            retryAction = { viewModel.getTerapis() },
             modifier = Modifier.padding(innerPadding),
             onDetailClick = onDetailClick,
-            onDeleteClick = { pasien ->
-                viewModel.deletePasien(pasien.id_pasien)
-                viewModel.getPasien()
+            onDeleteClick = { terapis ->
+                viewModel.deleteTerapis(terapis.id_terapis)
+                viewModel.getTerapis()
             }
         )
     }
@@ -98,27 +94,26 @@ fun HomeStatus(
     homeUiState: HomeUiState,
     retryAction: () -> Unit,
     modifier: Modifier = Modifier,
-    onDeleteClick: (Pasien) -> Unit = {},
+    onDeleteClick: (Terapis) -> Unit = {},
     onDetailClick: (Int) -> Unit
 ) {
     when (homeUiState) {
         is HomeUiState.Loading -> OnLoading(modifier = modifier.fillMaxSize())
         is HomeUiState.Success -> {
-            if (homeUiState.pasien.isEmpty()) {
+            if (homeUiState.terapis.isEmpty()) {
                 Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "Tidak ada data pasien")
+                    Text(text = "Tidak ada data terapis")
                 }
             } else {
-                PasienLayout(
-                    pasien = homeUiState.pasien,
+                TerapisLayout(
+                    terapis = homeUiState.terapis,
                     modifier = modifier.fillMaxWidth(),
-                    onDetailClick = { onDetailClick(it.id_pasien) },
+                    onDetailClick = { onDetailClick(it.id_terapis) },
                     onDeleteClick = { onDeleteClick(it) }
                 )
             }
         }
         is HomeUiState.Error -> OnError(retryAction, modifier = modifier.fillMaxSize())
-
     }
 }
 
@@ -139,9 +134,9 @@ fun OnError(retryAction: () -> Unit, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.eror), contentDescription = ""
+            painter = painterResource(id = R.drawable.eror),
+            contentDescription = ""
         )
-
         Text(text = stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
         Button(onClick = retryAction) {
             Text(stringResource(R.string.retry))
@@ -150,49 +145,35 @@ fun OnError(retryAction: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PasienLayout(
-    pasien: List<Pasien>,
+fun TerapisLayout(
+    terapis: List<Terapis>,
     modifier: Modifier = Modifier,
-    onDetailClick: (Pasien) -> Unit,
-    onDeleteClick: (Pasien) -> Unit = {}
+    onDetailClick: (Terapis) -> Unit,
+    onDeleteClick: (Terapis) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(pasien) { pasien ->
-            PasienCard(
-                pasien = pasien,
+        items(terapis) { terapis ->
+            TerapisCard(
+                terapis = terapis,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onDetailClick(pasien) },
-                onDeleteClick = { onDeleteClick(pasien) }
+                    .clickable { onDetailClick(terapis) },
+                onDeleteClick = { onDeleteClick(terapis) }
             )
         }
     }
 }
 
 @Composable
-fun PasienCard(
-    pasien: Pasien,
+fun TerapisCard(
+    terapis: Terapis,
     modifier: Modifier = Modifier,
-    onDeleteClick: (Pasien) -> Unit = {}
+    onDeleteClick: (Terapis) -> Unit = {}
 ) {
-    // Format tanggal menggunakan SimpleDateFormat
-    val formattedTanggalLahir = remember(pasien.tanggal_lahir) {
-        try {
-            val utcFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            utcFormat.timeZone = TimeZone.getTimeZone("UTC")
-            val parsedDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-            }.parse(pasien.tanggal_lahir)
-            parsedDate?.let { utcFormat.format(it) } ?: pasien.tanggal_lahir
-        } catch (e: Exception) {
-            pasien.tanggal_lahir
-        }
-    }
-
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
@@ -207,11 +188,11 @@ fun PasienCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = pasien.nama_pasien,
+                    text = terapis.nama_terapis,
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { onDeleteClick(pasien) }) {
+                IconButton(onClick = { onDeleteClick(terapis) }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = null,
@@ -220,15 +201,11 @@ fun PasienCard(
             }
 
             Text(
-                text = "Alamat: ${pasien.alamat}",
+                text = "Spesialisasi: ${terapis.spesialisasi}",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Nomor Telepon: ${pasien.nomor_telepon}",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = "Tanggal Lahir: $formattedTanggalLahir",
+                text = "Nomor Izin Praktik: ${terapis.nomor_izin_praktik}",
                 style = MaterialTheme.typography.titleMedium
             )
         }

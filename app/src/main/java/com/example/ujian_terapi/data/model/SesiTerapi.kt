@@ -11,3 +11,17 @@ data class SesiTerapi(
     val tanggal_sesi: String,
     val catatan_sesi: String?
 )
+
+@Serializable
+data class SesiTerapiResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<SesiTerapi>
+)
+
+@Serializable
+data class SesiTerapiDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: SesiTerapi
+)

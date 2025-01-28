@@ -1,41 +1,56 @@
 package com.example.ujian_terapi.ui.viewModel.Terapis
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ujian_terapi.data.model.Terapis
 import com.example.ujian_terapi.data.repository.terapisRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+sealed class DetailTerapisUiState {
+    data class Success(val terapis: Terapis) : DetailTerapisUiState()
+    object Error : DetailTerapisUiState()
+    object Loading : DetailTerapisUiState()
+}
+
 class TerapisDetailViewModel(
-    private val terapisRepository: terapisRepository,
-    private val idTerapis: Int
+    savedStateHandle: SavedStateHandle,
+    private val terapisRepository: terapisRepository
 ) : ViewModel() {
-    var detailUiState: TerapisUiState by mutableStateOf(TerapisUiState.Loading)
-        private set
+
+    private val _idTerapis: Int = checkNotNull(savedStateHandle[DestinasiDetailTerapis.idTerapis])
+
+    private val _detailUiState = MutableStateFlow<DetailTerapisUiState>(DetailTerapisUiState.Loading)
+    val detailUiState: StateFlow<DetailTerapisUiState> = _detailUiState
 
     init {
-        getTerapisById()
+        getDetailTerapis()
     }
 
-    private fun getTerapisById() {
+    fun getDetailTerapis() {
         viewModelScope.launch {
-            detailUiState = try {
-                val terapis = terapisRepository.getTerapisById(idTerapis)
-                TerapisUiState.Success(listOf(terapis))
+            try {
+                _detailUiState.value = DetailTerapisUiState.Loading
+                val terapis = terapisRepository.getTerapisById(_idTerapis.toString())
+                if (terapis != null) {
+                    _detailUiState.value = DetailTerapisUiState.Success(terapis)
+                } else {
+                    _detailUiState.value = DetailTerapisUiState.Error
+                }
             } catch (e: Exception) {
-                TerapisUiState.Error
+                _detailUiState.value = DetailTerapisUiState.Error
             }
         }
     }
 }
 
-data class TerapisUiEvent(
-    val namaTerapis: String = "",
-    val spesialisasi: String = "",
-    val nomorIzinPraktik: String = "",
-    val idTerapis: Int
-) {
-
+fun Terapis.toDetailUiEvent(): InsertTerapisUiEvent {
+    return InsertTerapisUiEvent(
+        idTerapis = id_terapis,
+        namaTerapis = nama_terapis,
+        spesialisasi = spesialisasi,
+        nomorIzinPraktik = nomor_izin_praktik
+    )
 }

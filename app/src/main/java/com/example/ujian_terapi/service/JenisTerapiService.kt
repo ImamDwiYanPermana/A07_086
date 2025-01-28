@@ -19,15 +19,15 @@ interface JenisTerapiService {
     suspend fun getJenisTerapi(): List<JenisTerapi>
 
     @GET("baca1Jenis.php/{id_jenis_terapi}")
-    suspend fun getJenisTerapiById(@Query("id_jenis_terapi") idJenis: Int): JenisTerapi
+    suspend fun getJenisTerapiById(@Query("id_jenis_terapi") idJenis: String): JenisTerapi
 
     @POST("insertJenis.php")
     suspend fun insertJenisTerapi(@Body jenisTerapi: JenisTerapi)
 
     @PUT("editJenis.php")
-    suspend fun updateJenisTerapi(@Query("id_jenis_terapi") idJenis: Int, @Body jenisTerapi: JenisTerapi
+    suspend fun updateJenisTerapi(@Query("id_jenis_terapi") idJenis: String, @Body jenisTerapi: JenisTerapi
     )
 
     @DELETE("deleteJenis.php")
-    suspend fun deleteJenisTerapi(@Query("id_jenis_terapi") idJenis: Int): Response<Void>
+    suspend fun deleteJenisTerapi(@Query("id_jenis_terapi") idJenis: String): Response<Void>
 }

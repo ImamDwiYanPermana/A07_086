@@ -13,3 +13,17 @@ data class Pasien(
     val riwayat_medikal: String?
 )
 
+@Serializable
+data class AllPasienResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Pasien>
+)
+
+@Serializable
+data class PasienDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Pasien
+)
+

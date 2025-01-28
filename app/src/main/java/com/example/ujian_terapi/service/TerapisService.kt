@@ -1,5 +1,4 @@
 package com.example.ujian_terapi.service
-import com.example.ujian_terapi.data.model.Pasien
 import com.example.ujian_terapi.data.model.Terapis
 import retrofit2.Response
 import retrofit2.http.Body
@@ -19,13 +18,13 @@ interface TerapisService {
     suspend fun getTerapis(): List<Terapis>
 
     @GET("baca1Terapis.php/{id_terapis}")
-    suspend fun getTerapisById(@Query("id_terapis") idTerapis: Int): Terapis
+    suspend fun getTerapisById(@Query("id_terapis") idTerapis: String): Terapis
 
     @POST("insertTerapis.php")
     suspend fun insertTerapis(@Body terapis: Terapis)
 
     @PUT("editTerapis.php")
-    suspend fun updateTerapis(@Query("id_terapis") idTerapis: Int, @Body terapis: Terapis)
+    suspend fun updateTerapis(@Query("id_terapis") idTerapis: String, @Body terapis: Terapis)
 
     @DELETE("deleteTerapis.php")
     suspend fun deleteTerapis(@Query("id_terapis") idTerapis: Int): Response<Void>

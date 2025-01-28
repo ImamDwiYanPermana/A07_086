@@ -1,4 +1,4 @@
-package com.example.ujian_terapi.ui.widget
+package com.example.ujian_terapi.ui.ConstumeAppBarr
 
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
@@ -15,35 +15,27 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTopAppBar(
+fun CostumeTopAppBar(
     title: String,
     canNavigateBack: Boolean,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    navigateUp: () -> Unit = { },
-    onRefresh: () -> Unit = { },
-) {
+    navigateUp: () -> Unit = {},
+    onRefresh: () -> Unit = {},
+
+
+    ) {
     CenterAlignedTopAppBar(
-        title = { Text(title) },
-        actions = {
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                contentDescription = "Refresh Icon",
-                modifier = Modifier.clickable {
-                    onRefresh()
-                }
-            )
+        title = { Text(title) }, actions = {
+            Icon(imageVector = Icons.Default.Refresh, contentDescription = "", modifier = Modifier.clickable { onRefresh()
+            })
         },
         modifier = modifier,
-        scrollBehavior = scrollBehavior, navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back Arrow"
-                    )
-                }
+        scrollBehavior = scrollBehavior, navigationIcon = { if (canNavigateBack) {
+            IconButton(onClick = navigateUp) {
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
+        }
         }
     )
 }

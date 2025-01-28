@@ -1,155 +1,199 @@
 package com.example.ujian_terapi.ui.view
 
+import android.app.DatePickerDialog
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.ujian_terapi.ui.viewModel.Pasien.PasienInsertViewModel
-import com.example.ujian_terapi.ui.viewModel.Pasien.PasienUiEvent
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ujian_terapi.navigation.DestinasiNavigasi
+import com.example.ujian_terapi.ui.ConstumeAppBarr.CostumeTopAppBar
+import com.example.ujian_terapi.ui.viewModel.Pasien.InsertPasienUiEvent
+import com.example.ujian_terapi.ui.viewModel.Pasien.InsertPasienUiState
+import com.example.ujian_terapi.ui.viewModel.Pasien.InsertPasienViewModel
+import com.example.ujian_terapi.ui.viewModel.PenyediaViewModel
+import kotlinx.coroutines.launch
+import java.util.Calendar
+
+object DestinasiEntryPasien: DestinasiNavigasi {
+    override val route = "insert pasien"
+    override val titleRes = "Insert Pasien"
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasienEntryScreen(
-    viewModel: PasienInsertViewModel,
-    onNavigateBack: () -> Unit,       // Navigasi ke halaman sebelumnya
-    onNavigateToDetails: (Int) -> Unit, // Navigasi ke halaman detail dengan ID pasien
-    modifier: Modifier = Modifier
+fun EntryPasienScreen(
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: InsertPasienViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-
+    val coroutineScope = rememberCoroutineScope()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
-                title = { Text("Tambah Pasien") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Kembali")
-                    }
-                }
+            CostumeTopAppBar(
+                title = DestinasiEntryPasien.titleRes,
+                canNavigateBack = true,
+                scrollBehavior = scrollBehavior,
+                navigateUp = navigateBack
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            PasienInputForm(
-                uiState = viewModel.uiState,
-                onValueChange = viewModel::updatePasienState
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    val newId = viewModel.insertPasien() // Menyimpan data dan mendapatkan ID pasien baru
-                    showDialog = true
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Simpan")
-            }
-        }
-    }
-
-    // Dialog konfirmasi setelah data berhasil disimpan
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("Sukses") },
-            text = { Text("Data pasien berhasil disimpan.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDialog = false
-                        // Navigasi ke halaman detail pasien setelah data berhasil disimpan
-                        val savedId = viewModel.getLastInsertedId() // Ambil ID pasien yang terakhir disimpan
-                        onNavigateToDetails(savedId)
-                    }
-                ) {
-                    Text("Lihat Detail")
+        EntryBodyPasien(
+            insertUiState = viewModel.uiState,
+            onPasienValueChange = viewModel::updateInsertPasienState,
+            onSaveClick = {
+                coroutineScope.launch {
+                    viewModel.insertPasien()
+                    navigateBack()
                 }
-            }
+            },
+            modifier = Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
         )
     }
 }
 
+
+
 @Composable
-fun PasienInputForm(
-    uiState: PasienUiEvent,
-    onValueChange: (PasienUiEvent) -> Unit,
+fun EntryBodyPasien(
+    insertUiState: InsertPasienUiState,
+    onPasienValueChange: (InsertPasienUiEvent) -> Unit,
+    onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+        modifier = modifier.padding(12.dp)
+    ) {
+        FormInputPasien(
+            insertUiEvent = insertUiState.insertUiEvent,
+            onValueChange = onPasienValueChange,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = onSaveClick,
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Simpan")
+        }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FormInputPasien(
+    insertUiEvent: InsertPasienUiEvent,
+    modifier: Modifier = Modifier,
+    onValueChange: (InsertPasienUiEvent) -> Unit = {},
+    enabled: Boolean = true
+) {
+    val context = LocalContext.current
+
+    // DatePickerDialog initialization
+    val calendar = Calendar.getInstance()
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val formattedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                // Update only the tanggalLahir field, keeping other fields the same
+                onValueChange(insertUiEvent.copy(tanggalLahir = formattedDate))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Each field should only update its specific value
         OutlinedTextField(
-            value = uiState.nama,
-            onValueChange = { onValueChange(uiState.copy(nama = it)) },
+            value = insertUiEvent.namaPasien,
+            onValueChange = { onValueChange(insertUiEvent.copy(namaPasien = it)) },
             label = { Text("Nama Pasien") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = enabled,
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
-            value = uiState.alamat,
-            onValueChange = { onValueChange(uiState.copy(alamat = it)) },
+            value = insertUiEvent.alamat,
+            onValueChange = { onValueChange(insertUiEvent.copy(alamat = it)) },
             label = { Text("Alamat") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = enabled,
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
-            value = uiState.nomorTelepon,
-            onValueChange = { onValueChange(uiState.copy(nomorTelepon = it)) },
+            value = insertUiEvent.nomorTelepon,
+            onValueChange = { onValueChange(insertUiEvent.copy(nomorTelepon = it)) },
             label = { Text("Nomor Telepon") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = enabled,
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
-            value = uiState.tanggalLahir,
-            onValueChange = { onValueChange(uiState.copy(tanggalLahir = it)) },
+            value = insertUiEvent.tanggalLahir,
+            onValueChange = { /* Disable direct input */ },
             label = { Text("Tanggal Lahir") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { datePickerDialog.show() },
+            enabled = false,
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = uiState.riwayatMedikal,
-            onValueChange = { onValueChange(uiState.copy(riwayatMedikal = it)) },
+            value = insertUiEvent.riwayatMedikal,
+            onValueChange = { onValueChange(insertUiEvent.copy(riwayatMedikal = it)) },
             label = { Text("Riwayat Medikal") },
             modifier = Modifier.fillMaxWidth(),
-            minLines = 3
+            enabled = enabled,
+            singleLine = true
+        )
+
+        if (enabled) {
+            Text(
+                text = "Isi Semua Data!",
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+
+        Divider(
+            thickness = 8.dp,
+            modifier = Modifier.padding(12.dp)
         )
     }
 }

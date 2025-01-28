@@ -9,3 +9,17 @@ data class Terapis(
     val spesialisasi: String,
     val nomor_izin_praktik: String
 )
+
+@Serializable
+data class AllTerapisResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Terapis>
+)
+
+@Serializable
+data class TerapisDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Terapis
+)

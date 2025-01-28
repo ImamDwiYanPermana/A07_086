@@ -8,9 +8,9 @@ import okio.IOException
 interface terapisRepository {
     suspend fun getTerapis(): List<Terapis>
     suspend fun insertTerapis(terapis: Terapis)
-    suspend fun updateTerapis(idTerapis: Int, terapis: Terapis)
+    suspend fun updateTerapis(idTerapis: String, terapis: Terapis)
     suspend fun deleteTerapis(idTerapis: Int)
-    suspend fun getTerapisById(idTerapis: Int): Terapis
+    suspend fun getTerapisById(idTerapis: String): Terapis
 }
 
 class NetworkTerapisRepository(
@@ -22,7 +22,7 @@ class NetworkTerapisRepository(
         terapisApiService.insertTerapis(terapis)
     }
 
-    override suspend fun updateTerapis(idTerapis: Int, terapis: Terapis) {
+    override suspend fun updateTerapis(idTerapis: String, terapis: Terapis) {
         terapisApiService.updateTerapis(idTerapis, terapis)
     }
 
@@ -39,7 +39,7 @@ class NetworkTerapisRepository(
             throw e
         }
     }
-    override suspend fun getTerapisById(idTerapis: Int): Terapis {
+    override suspend fun getTerapisById(idTerapis: String): Terapis {
         return  terapisApiService.getTerapisById(idTerapis)
     }
 }

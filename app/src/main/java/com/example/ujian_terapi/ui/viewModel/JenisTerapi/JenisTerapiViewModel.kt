@@ -5,46 +5,52 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ujian_terapi.data.model.JenisTerapi
+import com.example.ujian_terapi.data.model.Terapis
 import com.example.ujian_terapi.data.repository.jenisTerapiRepository
 import kotlinx.coroutines.launch
 import okio.IOException
 import retrofit2.HttpException
 
-sealed class JenisTerapiUiState {
-    data class Success(val jenisTerapi: List<JenisTerapi>) : JenisTerapiUiState()
-    object Error : JenisTerapiUiState()
-    object Loading : JenisTerapiUiState()
+sealed class HomeJTUiState {
+    data class Success(val jenisTerapi: List<Terapis>) : HomeJTUiState()
+    object Error : HomeJTUiState()
+    object Loading : HomeJTUiState()
 }
 
 class JenisTerapiViewModel(private val jenisTerapiRepository: jenisTerapiRepository) : ViewModel() {
-    var jenisTerapiUiState: JenisTerapiUiState by mutableStateOf(JenisTerapiUiState.Loading)
+    // State untuk mengelola UI
+    var jterapisUIState: HomeJTUiState by mutableStateOf(HomeJTUiState.Loading)
         private set
 
     init {
         getJenisTerapi()
     }
 
+    // Mendapatkan data jenis terapi
     fun getJenisTerapi() {
         viewModelScope.launch {
-            jenisTerapiUiState = JenisTerapiUiState.Loading
-            jenisTerapiUiState = try {
-                JenisTerapiUiState.Success(jenisTerapiRepository.getJenisTerapi())
+            jterapisUIState = HomeJTUiState.Loading // Set state ke Loading
+            jterapisUIState = try {
+                val response = jenisTerapiRepository.getJenisTerapi()
+                HomeJTUiState.Success(response)
             } catch (e: IOException) {
-                JenisTerapiUiState.Error
+                HomeJTUiState.Error
             } catch (e: HttpException) {
-                JenisTerapiUiState.Error
+                HomeJTUiState.Error
             }
         }
     }
 
-    fun deleteJenisTerapi(idJenis: Int) {
+    // Menghapus jenis terapi berdasarkan ID
+    fun deleteJenisTerapi(idJenisTerapi: Int) {
         viewModelScope.launch {
             try {
-                jenisTerapiRepository.deleteJenisTerapi(idJenis)
-                getJenisTerapi()
-            } catch (e: Exception) {
-                e.printStackTrace()
+                jenisTerapiRepository.deleteJenisTerapi(idJenisTerapi.toString())
+                getJenisTerapi() // Refresh data setelah penghapusan
+            } catch (e: IOException) {
+                jterapisUIState = HomeJTUiState.Error
+            } catch (e: HttpException) {
+                jterapisUIState = HomeJTUiState.Error
             }
         }
     }

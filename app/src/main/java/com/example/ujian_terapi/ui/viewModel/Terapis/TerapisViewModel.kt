@@ -11,14 +11,14 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import retrofit2.HttpException
 
-sealed class TerapisUiState {
-    data class Success(val terapis: List<Terapis>) : TerapisUiState()
-    object Error : TerapisUiState()
-    object Loading : TerapisUiState()
+sealed class HomeUiState {
+    data class Success(val terapis: List<Terapis>) : HomeUiState()
+    object Error : HomeUiState()
+    object Loading : HomeUiState()
 }
 
-class TerapisViewModel(private val terapisRepository: terapisRepository) : ViewModel() {
-    var terapisUiState: TerapisUiState by mutableStateOf(TerapisUiState.Loading)
+class HomeViewModelTerapis(private val terapisRepository: terapisRepository) : ViewModel() {
+    var terapisUIState: HomeUiState by mutableStateOf(HomeUiState.Loading)
         private set
 
     init {
@@ -27,13 +27,13 @@ class TerapisViewModel(private val terapisRepository: terapisRepository) : ViewM
 
     fun getTerapis() {
         viewModelScope.launch {
-            terapisUiState = TerapisUiState.Loading
-            terapisUiState = try {
-                TerapisUiState.Success(terapisRepository.getTerapis())
+            terapisUIState = HomeUiState.Loading
+            terapisUIState = try {
+                HomeUiState.Success(terapisRepository.getTerapis())
             } catch (e: IOException) {
-                TerapisUiState.Error
+                HomeUiState.Error
             } catch (e: HttpException) {
-                TerapisUiState.Error
+                HomeUiState.Error
             }
         }
     }
@@ -42,9 +42,11 @@ class TerapisViewModel(private val terapisRepository: terapisRepository) : ViewM
         viewModelScope.launch {
             try {
                 terapisRepository.deleteTerapis(idTerapis)
-                getTerapis() // Refresh list after deletion
-            } catch (e: Exception) {
-                e.printStackTrace()
+                getTerapis() // Segarkan data setelah penghapusan
+            } catch (e: IOException) {
+                terapisUIState = HomeUiState.Error
+            } catch (e: HttpException) {
+                terapisUIState = HomeUiState.Error
             }
         }
     }

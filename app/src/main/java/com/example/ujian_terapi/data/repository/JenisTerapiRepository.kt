@@ -8,9 +8,9 @@ import okio.IOException
 interface jenisTerapiRepository {
     suspend fun getJenisTerapi(): List<JenisTerapi>
     suspend fun insertJenisTerapi(jenisTerapi: JenisTerapi)
-    suspend fun updateJenisTerapi(idJenis: Int, jenisTerapi: JenisTerapi)
-    suspend fun deleteJenisTerapi(idJenis: Int)
-    suspend fun getJenisTerapiById(idJenis: Int): JenisTerapi
+    suspend fun updateJenisTerapi(idJenis: String, jenisTerapi: JenisTerapi)
+    suspend fun deleteJenisTerapi(idJenis: String)
+    suspend fun getJenisTerapiById(idJenis: String): JenisTerapi
 }
 
 class NetworkJenisTerapiRepository(
@@ -22,11 +22,11 @@ class NetworkJenisTerapiRepository(
        jenisTerapiApiService.insertJenisTerapi(jenisTerapi)
     }
 
-    override suspend fun updateJenisTerapi(idJenis: Int, jenisTerapi: JenisTerapi) {
+    override suspend fun updateJenisTerapi(idJenis: String, jenisTerapi: JenisTerapi) {
         jenisTerapiApiService.updateJenisTerapi(idJenis, jenisTerapi)
     }
 
-    override suspend fun deleteJenisTerapi(idJenis: Int) {
+    override suspend fun deleteJenisTerapi(idJenis: String) {
         try {
             val response = jenisTerapiApiService.deleteJenisTerapi(idJenis)
             if (!response.isSuccessful) {
@@ -41,7 +41,7 @@ class NetworkJenisTerapiRepository(
     }
 
 
-    override suspend fun getJenisTerapiById(idJenis: Int): JenisTerapi {
+    override suspend fun getJenisTerapiById(idJenis: String): JenisTerapi {
        return jenisTerapiApiService.getJenisTerapiById(idJenis)
     }
 

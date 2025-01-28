@@ -1,40 +1,51 @@
 package com.example.ujian_terapi.ui.viewModel.JenisTerapi
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ujian_terapi.data.model.JenisTerapi
 import com.example.ujian_terapi.data.repository.jenisTerapiRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class JenisTerapiDetailViewModel(
-    private val jenisTerapiRepository: jenisTerapiRepository,
-    private val idJenis: Int
-) : ViewModel() {
-    var detailUiState: JenisTerapiUiState by mutableStateOf(JenisTerapiUiState.Loading)
-        private set
+sealed class DetailJenisTerapiUiState {
+data class Success(val jenisTerapi: JenisTerapi) : DetailJenisTerapiUiState()
+object Error : DetailJenisTerapiUiState()
+object Loading : DetailJenisTerapiUiState()
+}
 
+class DetailJenisTerapiViewModel(
+    savedStateHandle: SavedStateHandle,
+    private val jenisTerapiRepository: jenisTerapiRepository
+) : ViewModel() {
+
+    // Mengambil ID Jenis Terapi dari SavedStateHandle
+    private val _idJenisTerapi: Int = checkNotNull(savedStateHandle["idJenisTerapi"])
+
+    // StateFlow untuk mengelola UI State
+    private val _detailJtUiState = MutableStateFlow<DetailJenisTerapiUiState>(DetailJenisTerapiUiState.Loading)
+    val detailUiState: StateFlow<DetailJenisTerapiUiState> = _detailJtUiState
+
+    // Inisialisasi ViewModel
     init {
-        getJenisTerapiById()
+        getDetailJenisTerapi()
     }
 
-    private fun getJenisTerapiById() {
+    // Fungsi untuk mengambil detail Jenis Terapi berdasarkan ID
+    fun getDetailJenisTerapi() {
         viewModelScope.launch {
-            detailUiState = try {
-                val jenisTerapi = jenisTerapiRepository.getJenisTerapiById(idJenis)
-                JenisTerapiUiState.Success(listOf(jenisTerapi))
+            try {
+                _detailJtUiState.value = DetailJenisTerapiUiState.Loading
+                val jenisTerapi = jenisTerapiRepository.getJenisTerapiById(_idJenisTerapi.toString())
+                if (jenisTerapi != null) {
+                    _detailJtUiState.value = DetailJenisTerapiUiState.Success(jenisTerapi)
+                } else {
+                    _detailJtUiState.value = DetailJenisTerapiUiState.Error
+                }
             } catch (e: Exception) {
-                JenisTerapiUiState.Error
+                _detailJtUiState.value = DetailJenisTerapiUiState.Error
             }
         }
     }
-}
-
-data class JenisTerapiUiEvent(
-    val namaJenisTerapi: String = "",
-    val deskripsiTerapi: String = "",
-    val idJenisTerapi: Int = 0
-) {
-
 }

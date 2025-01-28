@@ -5,27 +5,59 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ujian_terapi.data.model.JenisTerapi
 import com.example.ujian_terapi.data.repository.jenisTerapiRepository
-import com.example.ujian_terapi.ui.componen.toJenisTerapi
 import kotlinx.coroutines.launch
 
-class JenisTerapiInsertViewModel(
-    private val jenisTerapiRepository: jenisTerapiRepository
-) : ViewModel() {
-    var uiState by mutableStateOf(JenisTerapiUiEvent())
+class JenisTerapiInsertViewModel(private val jenisTerapiRepository: jenisTerapiRepository) : ViewModel() {
+    var uiState by mutableStateOf(InsertJenisTerapiUiState())
         private set
 
-    fun updateJenisTerapiState(event: JenisTerapiUiEvent) {
-        uiState = event
+    // Fungsi untuk memperbarui state form
+    fun updateInsertJenisTerapiState(insertUiEvent: InsertJenisTerapiUiEvent) {
+        uiState = InsertJenisTerapiUiState(insertUiEvent = insertUiEvent)
     }
 
-    suspend fun insertJenisTerapi() {
+    // Fungsi untuk menyimpan data jenis terapi
+    fun insertJenisTerapi() {
         viewModelScope.launch {
             try {
-                jenisTerapiRepository.insertJenisTerapi(uiState.toJenisTerapi())
+                val jenisTerapi = uiState.insertUiEvent.toJenisTerapi()
+                jenisTerapiRepository.insertJenisTerapi(jenisTerapi)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 }
+
+// State untuk UI form
+data class InsertJenisTerapiUiState(
+    val insertUiEvent: InsertJenisTerapiUiEvent = InsertJenisTerapiUiEvent()
+)
+
+// Event untuk mengelola input form
+data class InsertJenisTerapiUiEvent(
+    val idJenisTerapi: Int = 0,
+    val namaJenisTerapi: String = "",
+    val deskripsiTerapi: String = ""
+)
+
+// Fungsi untuk mengubah InsertJenisTerapiUiEvent menjadi objek JenisTerapi
+fun InsertJenisTerapiUiEvent.toJenisTerapi(): JenisTerapi = JenisTerapi(
+    id_jenis_terapi = idJenisTerapi,
+    nama_jenis_terapi = namaJenisTerapi,
+    deskripsi_terapi = deskripsiTerapi
+)
+
+// Fungsi untuk mengubah objek JenisTerapi ke UI State
+fun JenisTerapi.toUiStateJenisTerapi(): InsertJenisTerapiUiState = InsertJenisTerapiUiState(
+    insertUiEvent = toInsertJenisTerapiUiEvent()
+)
+
+// Fungsi untuk mengubah objek JenisTerapi ke InsertJenisTerapiUiEvent
+fun JenisTerapi.toInsertJenisTerapiUiEvent(): InsertJenisTerapiUiEvent = InsertJenisTerapiUiEvent(
+    idJenisTerapi = id_jenis_terapi,
+    namaJenisTerapi = nama_jenis_terapi,
+    deskripsiTerapi = deskripsi_terapi
+)
