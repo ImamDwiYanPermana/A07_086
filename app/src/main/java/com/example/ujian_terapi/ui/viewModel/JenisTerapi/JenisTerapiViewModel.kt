@@ -5,14 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ujian_terapi.data.model.Terapis
+import com.example.ujian_terapi.data.model.JenisTerapi
 import com.example.ujian_terapi.data.repository.jenisTerapiRepository
 import kotlinx.coroutines.launch
 import okio.IOException
 import retrofit2.HttpException
 
 sealed class HomeJTUiState {
-    data class Success(val jenisTerapi: List<Terapis>) : HomeJTUiState()
+    data class Success(val jenisTerapi: List<JenisTerapi>) : HomeJTUiState()
     object Error : HomeJTUiState()
     object Loading : HomeJTUiState()
 }

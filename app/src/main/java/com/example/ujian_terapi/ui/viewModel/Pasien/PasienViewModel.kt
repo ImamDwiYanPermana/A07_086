@@ -32,7 +32,7 @@ class HomeViewModelPasien(private val pasienRepository: pasienRepository) : View
             Log.d("HomeViewModelPasien", "Fetching list of patients...")
             pasienUIState = HomeUiState.Loading
             pasienUIState = try {
-                val data = pasienRepository.getPasien().data
+                val data = pasienRepository.getPasien()
                 Log.d("HomeViewModelPasien", "Successfully fetched patients: ${data.size} items.")
                 HomeUiState.Success(data)
             } catch (e: IOException) {

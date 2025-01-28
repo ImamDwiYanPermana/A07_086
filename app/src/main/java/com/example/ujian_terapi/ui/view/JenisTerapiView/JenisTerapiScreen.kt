@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ujian_terapi.R
-import com.example.ujian_terapi.data.model.Terapis
+import com.example.ujian_terapi.data.model.JenisTerapi
 import com.example.ujian_terapi.navigation.DestinasiNavigasi
 import com.example.ujian_terapi.ui.ConstumeAppBarr.CostumeTopAppBar
 import com.example.ujian_terapi.ui.ConstumeAppBarr.MenuButton
@@ -136,7 +136,7 @@ fun JenisTerapiStatus(
 
 @Composable
 fun JenisTerapiList(
-    jenisTerapiList: List<Terapis>,
+    jenisTerapiList: List<JenisTerapi>,
     onDeleteClick: (Int) -> Unit,
     onDetailClick: (Int) -> Unit
 ) {
@@ -147,8 +147,8 @@ fun JenisTerapiList(
         items(jenisTerapiList) { jenisTerapi ->
             JenisTerapiCard(
                 jenisTerapi = jenisTerapi,
-                onDeleteClick = { onDeleteClick(jenisTerapi.id_terapis) },
-                onDetailClick = { onDetailClick(jenisTerapi.id_terapis) }
+                onDeleteClick = { onDeleteClick(jenisTerapi.id_jenis_terapi) },
+                onDetailClick = { onDetailClick(jenisTerapi.id_jenis_terapi) }
             )
         }
     }
@@ -156,7 +156,7 @@ fun JenisTerapiList(
 
 @Composable
 fun JenisTerapiCard(
-    jenisTerapi: Terapis,
+    jenisTerapi: JenisTerapi,
     onDeleteClick: () -> Unit,
     onDetailClick: () -> Unit
 ) {
@@ -175,7 +175,7 @@ fun JenisTerapiCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = jenisTerapi.nama_terapis,
+                    text = jenisTerapi.nama_jenis_terapi,
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -183,8 +183,7 @@ fun JenisTerapiCard(
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Hapus")
                 }
             }
-            Text(text = "Spesialisasi: ${jenisTerapi.spesialisasi}")
-            Text(text = "Nomor Izin Praktik: ${jenisTerapi.nomor_izin_praktik}")
+            Text(text = "Nomor Izin Praktik: ${jenisTerapi.deskripsi_terapi}")
         }
     }
 }

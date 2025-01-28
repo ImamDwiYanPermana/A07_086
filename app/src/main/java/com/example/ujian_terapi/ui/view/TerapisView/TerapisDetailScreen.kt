@@ -34,7 +34,8 @@ object DestinasiDetailTerapis : DestinasiNavigasi {
 fun TerapisDetailScreen(
     navigateBack: () -> Unit,
     onEditClick: (Int) -> Unit = {},
-    viewModel: TerapisDetailViewModel = viewModel()  // ViewModel is instantiated here
+    viewModel: TerapisDetailViewModel = viewModel(),  // ViewModel is instantiated here
+    idTerapis: Int
 ) {
     // Collect the current UI state from the ViewModel
     val detailUiState by viewModel.detailUiState.collectAsState()
@@ -138,7 +139,7 @@ fun ComponentDetail(judul: String, isinya: String) {
 }
 
 @Composable
-private fun OnLoading(modifier: Modifier = Modifier) {
+private fun OnLoadingScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
