@@ -25,8 +25,14 @@ import com.example.ujian_terapi.ui.view.JenisTerapiView.DetailJenisTerapiView
 import com.example.ujian_terapi.ui.view.JenisTerapiView.EntryJenisTerapiScreen
 import com.example.ujian_terapi.ui.view.JenisTerapiView.HomeScreenJenisTerapi
 import com.example.ujian_terapi.ui.view.JenisTerapiView.UpdateJenisTerapiView
+import com.example.ujian_terapi.ui.view.TerapisView.DestinasiDetailTerapis
+import com.example.ujian_terapi.ui.view.TerapisView.DestinasiEntryTerapis
 import com.example.ujian_terapi.ui.view.TerapisView.DestinasiHomeTerapis
+import com.example.ujian_terapi.ui.view.TerapisView.DestinasiUpdateTerapis
+import com.example.ujian_terapi.ui.view.TerapisView.EntryTerapisScreen
 import com.example.ujian_terapi.ui.view.TerapisView.HomeScreenTerapis
+import com.example.ujian_terapi.ui.view.TerapisView.TerapisDetailScreen
+import com.example.ujian_terapi.ui.view.TerapisView.TerapisUpdateScreen
 import com.example.ujian_terapi.ui.view.UpdatePasienView
 
 @Composable
@@ -141,7 +147,7 @@ fun PengelolaHalaman(
             arguments = listOf(navArgument(DestinasiDetailTerapis.idTerapis) { type = NavType.IntType })
         ) { backStackEntry ->
             val idTerapis = backStackEntry.arguments?.getInt(DestinasiDetailTerapis.idTerapis) ?: -1
-            DetailTerapisView(
+            TerapisDetailScreen(
                 idTerapis = idTerapis,
                 navigateBack = { navController.popBackStack() },
                 onEditClick = { idTerapis ->
@@ -157,7 +163,7 @@ fun PengelolaHalaman(
         ) { backStackEntry ->
             val idTerapis = backStackEntry.arguments?.getInt(DestinasiUpdateTerapis.idTerapis)
             idTerapis?.let {
-                UpdateTerapisView(
+                TerapisUpdateScreen(
                     navigateBack = { navController.popBackStack() },
                     modifier = modifier
                 )

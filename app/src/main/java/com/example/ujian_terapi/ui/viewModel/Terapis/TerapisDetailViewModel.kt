@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ujian_terapi.data.model.Terapis
 import com.example.ujian_terapi.data.repository.terapisRepository
+import com.example.ujian_terapi.ui.view.TerapisView.DestinasiDetailTerapis
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +21,7 @@ class TerapisDetailViewModel(
     private val terapisRepository: terapisRepository
 ) : ViewModel() {
 
-    private val _idTerapis: Int = checkNotNull(savedStateHandle[DestinasiDetailTerapis.idTerapis])
+    internal val _idTerapis: Int = checkNotNull(savedStateHandle[DestinasiDetailTerapis.idTerapis])
 
     private val _detailUiState = MutableStateFlow<DetailTerapisUiState>(DetailTerapisUiState.Loading)
     val detailUiState: StateFlow<DetailTerapisUiState> = _detailUiState

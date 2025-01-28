@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ujian_terapi.data.model.Terapis
 import com.example.ujian_terapi.data.repository.terapisRepository
+import com.example.ujian_terapi.ui.view.TerapisView.DestinasiUpdateTerapis
 import kotlinx.coroutines.launch
 
 class UpdateTerapisViewModel(
